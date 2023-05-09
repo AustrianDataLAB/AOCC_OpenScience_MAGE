@@ -1,7 +1,9 @@
 FROM ubuntu:20.04 as build
 
 COPY python3.9requirements.txt .
-RUN echo "kaipy==0.0.1" >> python3.9requirements.txt && apt-get update && apt-get upgrade -y && \
+RUN echo "kaipy==0.0.1" >> python3.9requirements.txt &&\
+  apt-get update &&\
+  # && apt-get upgrade -y && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     ca-certificates imagemagick python3.9 python3-pip && \
     # pip3 install --upgrade pip setuptools wheel &&\
@@ -30,7 +32,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update --yes && \
     # - apt-get upgrade is run to patch known vulnerabilities in apt-get packages as
     #   the ubuntu base image is rebuilt too seldom sometimes (less than once a month)
-    apt-get upgrade --yes && \
+    # apt-get upgrade --yes && \
     apt-get install --yes --no-install-recommends \
     # - bzip2 is necessary to extract the micromamba executable.
     bzip2 \
@@ -115,22 +117,25 @@ RUN mkdir "/home/${NB_USER}/work" && \
 
 # what is the thing now with conda install forge paraview: does it work or should we take it back out?
 
-RUN apt-get update && \
-    apt-get upgrade -y
+#RUN apt-get update && \
+#    apt-get upgrade -y
 
 ARG PARAVIEW_VERSION=5.11.0
 ARG PARAVIEW_BUILD=py39h03a2555_101_qt
 
 RUN conda install -c conda-forge python="${PYTHON_VERSION}" \
-       paraview="${PARAVIEW_VERSION}"="${PARAVIEW_BUILD}" \
-       boost=1.78.0 \
+      # paraview="${PARAVIEW_VERSION}"="${PARAVIEW_BUILD}" \
+       paraview \
+       boost=1.74.0 \
        cli11 \
        nlohmann_json \
        eigen \
        notebook \
        jupyterlab \
        jupyterhub \
-       ipyvtklink
+       ipyvtklink 
+       #\
+       #vtk=9.2.5
 
 RUN jupyter notebook --generate-config && \
     /opt/conda/bin/pip3 install --upgrade pip setuptools wheel && \
@@ -148,7 +153,8 @@ ENV ParaView_DIR=/home/jovyan/.conda/pkgs/paraview-{PARAVIEW_VERSION}"-"${PARAVI
     LD_LIBRARY_PATH=/home/jovyan/.conda/pkgs/paraview-{PARAVIEW_VERSION}"-"${PARAVIEW_BUILD}"/lib:/home/jovyan/.conda/envs/paraview/lib \
     PATH=/opt/conda/bin:/opt/conda/condabin:/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-RUN git clone https://gitlab.kitware.com/paraview/iparaview-kernel.git
+#RUN git clone https://gitlab.kitware.com/paraview/iparaview-kernel.git
+COPY iparaview-kernel ./iparaview-kernel
 
 RUN cd iparaview-kernel/ && ls && cmake -S . && cmake --build . --target install
 
