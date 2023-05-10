@@ -3,11 +3,8 @@ FROM ubuntu:20.04 as build
 COPY python3.9requirements.txt .
 RUN echo "kaipy==0.0.1" >> python3.9requirements.txt &&\
   apt-get update &&\
-  # && apt-get upgrade -y && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     ca-certificates imagemagick python3.9 python3-pip && \
-    # pip3 install --upgrade pip setuptools wheel &&\
-    # pip3 install --no-use-pep517 -r python3.9requirements.txt  &&\
   rm -rf /var/lib/apt/lists/*
 
 
@@ -30,9 +27,6 @@ USER root
 # features (e.g., download as all possible file formats)
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update --yes && \
-    # - apt-get upgrade is run to patch known vulnerabilities in apt-get packages as
-    #   the ubuntu base image is rebuilt too seldom sometimes (less than once a month)
-    # apt-get upgrade --yes && \
     apt-get install --yes --no-install-recommends \
     # - bzip2 is necessary to extract the micromamba executable.
     bzip2 \
@@ -69,9 +63,8 @@ RUN apt-get update --yes && \
     libxext6 && \
     apt-get clean && rm -rf /var/lib/apt/lists/* && \
     echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
-    locale-gen
-
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+    locale-gen &&\
+    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
      /bin/bash ~/miniconda.sh -b -p /opt/conda
 
 
@@ -89,11 +82,10 @@ ENV PATH="${CONDA_DIR}/bin:${PATH}" \
 
 # Copy a script that we will use to correct permissions after running certain commands
 COPY fix-permissions /usr/local/bin/fix-permissions
-RUN chmod a+rx /usr/local/bin/fix-permissions
-
+RUN chmod a+rx /usr/local/bin/fix-permissions &&\
 # Enable prompt color in the skeleton .bashrc before creating the default NB_USER
 # hadolint ignore=SC2016
-RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashrc && \
+   sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashrc && \
    # Add call to conda init script see https://stackoverflow.com/a/58081608/4413446
    echo 'eval "$(command conda shell.bash hook 2> /dev/null)"' >> /etc/skel/.bashrc
 
@@ -113,19 +105,16 @@ ARG PYTHON_VERSION=3.9
 
 # Setup work directory for backward-compatibility
 RUN mkdir "/home/${NB_USER}/work" && \
-    fix-permissions "/home/${NB_USER}"
+    fix-permissions "/home/${NB_USER}" 
 
-# what is the thing now with conda install forge paraview: does it work or should we take it back out?
 
-#RUN apt-get update && \
-#    apt-get upgrade -y
 
-ARG PARAVIEW_VERSION=5.11.0
-ARG PARAVIEW_BUILD=py39h03a2555_101_qt
+ARG PARAVIEW_VERSION=5.11.1
+#ARG PARAVIEW_BUILD=py39h03a2555_101_qt
 
 RUN conda install -c conda-forge python="${PYTHON_VERSION}" \
       # paraview="${PARAVIEW_VERSION}"="${PARAVIEW_BUILD}" \
-       paraview=5.11 \
+       paraview="${PARAVIEW_VERSION}" \
        boost=1.78.0 \
        cli11 \
        nlohmann_json \
@@ -134,17 +123,14 @@ RUN conda install -c conda-forge python="${PYTHON_VERSION}" \
        jupyterlab \
        jupyterhub \
        ipyvtklink 
-       #\
-       #vtk=9.2.5
+
 
 RUN jupyter notebook --generate-config && \
     /opt/conda/bin/pip3 install --upgrade pip setuptools wheel && \
     /opt/conda/bin/pip3 install --no-use-pep517 -r python3.9requirements.txt && \
     conda clean -a -y && \
-#    npm cache clean --force && \
     jupyter lab clean && \
     rm -rf "/home/${NB_USER}/.cache/yarn" && \
-#    fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
 ENV ParaView_DIR=/home/jovyan/.conda/pkgs/paraview-{PARAVIEW_VERSION}"-"${PARAVIEW_BUILD}" \
@@ -153,14 +139,13 @@ ENV ParaView_DIR=/home/jovyan/.conda/pkgs/paraview-{PARAVIEW_VERSION}"-"${PARAVI
     LD_LIBRARY_PATH=/home/jovyan/.conda/pkgs/paraview-{PARAVIEW_VERSION}"-"${PARAVIEW_BUILD}"/lib:/home/jovyan/.conda/envs/paraview/lib \
     PATH=/opt/conda/bin:/opt/conda/condabin:/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
-RUN git clone https://gitlab.kitware.com/paraview/iparaview-kernel.git
+RUN git clone https://gitlab.kitware.com/paraview/iparaview-kernel.git &&\
 #COPY iparaview-kernel ./iparaview-kernel
 
-RUN cd iparaview-kernel/ && ls && cmake -S . && cmake --build . --target install
+   cd iparaview-kernel/ && ls && cmake -S . && cmake --build . --target install &&\
+   pip install jupyterlab_h5web[full]
 
 EXPOSE 8888
-
-RUN pip install jupyterlab_h5web[full]
 
 # Configure container startup
 COPY start_xvfb.sh /sbin/start_xvfb.sh
@@ -171,7 +156,6 @@ CMD ["start-notebook.sh"]
 
 # Copy local files as late as possible to avoid cache busting
 COPY start.sh start-notebook.sh start-singleuser.sh /usr/local/bin/
-#RUN chmod +x /usr/local/bin/start*.sh
 # Currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
 COPY jupyter_server_config.py /etc/jupyter/
 
