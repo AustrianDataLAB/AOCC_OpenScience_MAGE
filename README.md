@@ -6,7 +6,7 @@ For a basic example of the kernel using Jupyter Notebook, see `Examples/simpleDe
 ## Test environment with docker
 
 Included you find a `Dockerfile` with a simple test environment based on JupyterLab. 
-The installation is based on *Python 3.9* and uses *miniconda* to install Paraview 5.11 (build `py39h03a2555_101_qt` on `conda-forge`).
+The installation is based on *Python 3.9* and uses *miniconda* to install Paraview 5.11.1 (on `conda-forge`).
 
 To build the container run:
 ```bash
