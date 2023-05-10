@@ -3,6 +3,14 @@ To have more information on what is available specifically through this kernel, 
 
 For a basic example of the kernel using Jupyter Notebook, see `Examples/simpleDemo.ipynb`.
 
+## TL;DR
+```
+docker run -it -p 8888:8888 ghcr.io/austriandatalab/aocc_openscience_mage:main
+```
+
+and you have the Jupyter-Lab-with-Paraview-Kernel running locally, accessible in your browser.
+
+
 ## Test environment with docker
 
 Included you find a `Dockerfile` with a simple test environment based on JupyterLab. 
