@@ -4,7 +4,7 @@ cdasws==1.7.37
 ConfigParser==5.2.0
 dataclasses_json==0.5.7
 h5py==3.7.0
-matplotlib==3.1.2
+matplotlib==3.7.1
 numpy==1.21.4
 Pillow==9.1.1
 progressbar33==2.4
@@ -17,4 +17,5 @@ xarray==2022.3.0
 ai.cdas==1.2.3
 netcdf4==1.5.8
 git+https://github.com/greglucas/bezpy.git@master
+kaipy==0.0.2
 

@@ -1,8 +1,7 @@
 FROM ubuntu:20.04 as build
 
-COPY python3.9requirements.txt .
-RUN echo "kaipy==0.0.1" >> python3.9requirements.txt &&\
-  apt-get update &&\
+
+RUN apt-get update && \
   DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     ca-certificates imagemagick python3.9 python3-pip && \
   rm -rf /var/lib/apt/lists/*
@@ -110,7 +109,7 @@ RUN mkdir "/home/${NB_USER}/work" && \
 ARG PARAVIEW_VERSION=5.11.1
 #ARG PARAVIEW_BUILD=py39h03a2555_101_qt
 
-RUN conda install -c conda-forge python="${PYTHON_VERSION}" \
+RUN apt upgrade -y && conda install -c conda-forge python="${PYTHON_VERSION}" \
       # paraview="${PARAVIEW_VERSION}"="${PARAVIEW_BUILD}" \
        paraview="${PARAVIEW_VERSION}" \
        boost=1.78.0 \
@@ -123,18 +122,24 @@ RUN conda install -c conda-forge python="${PYTHON_VERSION}" \
        ipyvtklink 
 
 
+COPY python3.9requirements.txt .
 RUN jupyter notebook --generate-config && \
     /opt/conda/bin/pip3 install --upgrade pip setuptools wheel && \
-    /opt/conda/bin/pip3 install --no-use-pep517 -r python3.9requirements.txt && \
+    #conda remove --force matplotlib &&\
+    #pip install --no-cache-dir "matplotlib==3.1.2"  &&\
+    /opt/conda/bin/pip3 install --no-cache-dir  --no-use-pep517 -r python3.9requirements.txt && \
+    #/opt/conda/bin/pip3  --no-cache-dir install -r python3.9requirements.txt && \
+    #pip install -r python3.9requirements.txt &&\
+    #/opt/conda/bin/pip3 install --no-cache-dir  --no-use-pep517 -r environment-kaipy.yml &&\ 
     conda clean -a -y && \
     jupyter lab clean && \
     rm -rf "/home/${NB_USER}/.cache/yarn" && \
     fix-permissions "/home/${NB_USER}"
 
-ENV ParaView_DIR=/home/jovyan/.conda/pkgs/paraview-{PARAVIEW_VERSION}"-"${PARAVIEW_BUILD}" \
+ENV ParaView_DIR=/home/jovyan/.conda/pkgs/paraview-${PARAVIEW_VERSION}" \
     CMAKE_INSTALL_PREFIX=/home/jovyan/.local/share/jupyter/kernels \
-    PYTHONPATH=/home/jovyan/.conda/pkgs/paraview-${PARAVIEW_VERSION}"-"${PARAVIEW_BUILD}"/lib:/home/jovyan/.conda/pkgs/paraview-{PARAVIEW_VERSION}"-"${PARAVIEW_BUILD}"/lib/python3.9/site-packages \
-    LD_LIBRARY_PATH=/home/jovyan/.conda/pkgs/paraview-{PARAVIEW_VERSION}"-"${PARAVIEW_BUILD}"/lib:/home/jovyan/.conda/envs/paraview/lib \
+    PYTHONPATH=/home/jovyan/./lib/python3.9/site-packages \
+    LD_LIBRARY_PATH=/home/jovyan/.conda/pkgs/paraview-${PARAVIEW_VERSION}"/lib:/home/jovyan/.conda/envs/paraview/lib \
     PATH=/opt/conda/bin:/opt/conda/condabin:/opt/conda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 RUN git clone https://gitlab.kitware.com/paraview/iparaview-kernel.git &&\
@@ -179,7 +184,7 @@ RUN fix-permissions /home/$NB_USER
 # Switch back to jovyan to avoid accidental container runs as root
 USER ${NB_UID}
 
-
+ENV PYTHONPATH="${PYTHONPATH}:/home/jovyan/.local/lib/python3.9/site-packages/"
 ENV XDG_RUNTIME_DIR="/tmp/runtime-${NB_USER}"
 RUN echo "ulimit -s unlimited" >> /home/jovyan/.bashrc
 COPY globus_client_start.ipynb ${HOME}
