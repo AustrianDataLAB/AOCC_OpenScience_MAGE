@@ -107,8 +107,6 @@ ARG PYTHON_VERSION=3.9
 RUN mkdir "/home/${NB_USER}/work" && \
     fix-permissions "/home/${NB_USER}" 
 
-
-
 ARG PARAVIEW_VERSION=5.11.1
 #ARG PARAVIEW_BUILD=py39h03a2555_101_qt
 
@@ -184,4 +182,5 @@ USER ${NB_UID}
 
 ENV XDG_RUNTIME_DIR="/tmp/runtime-${NB_USER}"
 RUN echo "ulimit -s unlimited" >> /home/jovyan/.bashrc
+COPY globus_client_start.ipynb ${HOME}
 WORKDIR "${HOME}"

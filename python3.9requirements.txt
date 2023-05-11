@@ -16,4 +16,5 @@ cdflib==0.4.4
 xarray==2022.3.0
 ai.cdas==1.2.3
 netcdf4==1.5.8
+git+https://github.com/greglucas/bezpy.git@master
 
