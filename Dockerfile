@@ -187,5 +187,5 @@ USER ${NB_UID}
 ENV PYTHONPATH="${PYTHONPATH}:/home/jovyan/.local/lib/python3.9/site-packages/"
 ENV XDG_RUNTIME_DIR="/tmp/runtime-${NB_USER}"
 RUN echo "ulimit -s unlimited" >> /home/jovyan/.bashrc
-COPY globus_client_start.ipynb ${HOME}
+COPY globus_client_start.ipynb MagIonPlot.ipynb ParaviewExample.ipynb ${HOME}
 WORKDIR "${HOME}"
