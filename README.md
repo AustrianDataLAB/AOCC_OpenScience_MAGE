@@ -1,7 +1,7 @@
 
 To have more information on what is available specifically through this kernel, type magic command `%help` in the interpreter.
 
-For a basic example of the kernel using Jupyter Notebook, see `Examples/simpleDemo.ipynb`.
+For a basic example of the kernel using Jupyter Notebook, see `ParaviewExample.ipynb`, for a sample Tutorial see `MagIonPlot.ipynb` , for opening a connection via Globus, see `globus_client_start.ipynb`.
 
 ## TL;DR
 ```
