@@ -2,9 +2,9 @@
 # JupyterLab OpenScience Containers 
 This is the first sample container for which we demonstrate how to use some HPC tooling on Kubernetes or locally, using the https://cgs.jhuapl.edu codebase "MAGE" ( an ecosystem consisting of Fortran/Python MPI/OPENMP).
 Here, we specifically use Paraview to plot Magneto-Hydro-Dynamics Data produced by MAGE, and thus we include the Python Packages required specifically for this HPC codebase (kaipy etc).
+
 WIP: The Globus Endpoints for the data are public, but currently those datasets are rather large.
 
-In real life: there is a CI pipeline with the source code, that builds this Analysis-Container
 
 For a basic example of the kernel using Jupyter Notebook, see `ParaviewExample.ipynb`, for a sample Tutorial see `MagIonPlot.ipynb` , for opening a connection via Globus, see `globus_client_start.ipynb`. To have more information on what is available specifically through this Jupyter-kernel, type magic command `%help` in the interpreter.
 
