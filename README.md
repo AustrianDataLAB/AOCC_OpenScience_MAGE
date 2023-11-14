@@ -13,7 +13,7 @@ For a basic example of the kernel using Jupyter Notebook, see `ParaviewExample.i
 docker run -it -p 8888:8888 ghcr.io/austriandatalab/aocc_openscience_mage:main
 ```
 
-and you have the Jupyter-Lab-with-Paraview-Kernel running locally, accessible in your browser.
+and you can open a MAGE tutorial in Jupyter and have the Paraview-Kernel to visualize HDF5 data, accessible in your browser.
 
 ## For JupyterHub locally
  You can also see our other repos for the full JupyterHub on Docker and Minikube (https://github.com/AustrianDataLAB/AOCC-JupyterHub-Trial)
